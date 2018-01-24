@@ -16,8 +16,6 @@ Outline:
 """
 
 import pygame
-
-# optional because of infect_board function
 import random
 
 # neighbor coordinates
@@ -44,21 +42,22 @@ screen = pygame.display.set_mode(size)
 cellx = 5
 celly = 5
 
+
 # OPTIONAL: randomly infects board.
-# def infect_board(grid):
-#     for row in range(100):
-#         for column in range(100):
-#
-#             rand = random.randint(1, 10) # 10% chance
-#             if rand > 1:
-#                 rand = 0
-#
-#             grid[row][column] = rand # determine if alive(1) or dead(0)
-#
-#             if grid[row][column] == 1:
-#                 color_cell(alive, row, column)
-#             else:
-#                 color_cell(dead, row, column)
+def infect_board(grid):
+    for row in range(100):
+        for column in range(100):
+
+            rand = random.randint(1, 10) # 10% chance
+            if rand > 1:
+                rand = 0
+
+            grid[row][column] = rand # determine if alive(1) or dead(0)
+
+            if grid[row][column] == 1:
+                color_cell(alive, row, column)
+            else:
+                color_cell(dead, row, column)
 
 
 # assigns color to a specific cell
@@ -112,7 +111,6 @@ def main():
     # initialize game
     pygame.init()
     pygame.display.set_caption("Game Of Life")
-    infected = False
 
     # Create 2 dimensional array. Array = a list of lists.
     grid = [[0 for x in range(100)] for y in range(100)]
@@ -132,21 +130,24 @@ def main():
                 grid[row].append(0)
         """
 
-    # Loop until the user clicks the close button
-    done = False
-
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
     # Set background to black
     screen.fill(dead)
 
+    # Loop until the user clicks the close button
+    done = False
+
+    # infect board at beginning of game
+    infected = False
+
+    # toggle evolution
     run_program = False
 
     # ---- Main event loop ----
     while not done:
         pressed = pygame.key.get_pressed()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -164,17 +165,17 @@ def main():
             elif pressed[pygame.K_SPACE]:
                 run_program = not run_program
 
+        # Initial infection function. This is optional
+        if not infected:
+            infect_board(grid)
+            infected = True
+
         if run_program:
             evolve(grid)
             # Update screen
             pygame.display.flip()
         else:
             pygame.display.flip()
-
-        # Initial infection function. Optional
-        # if not infected:
-        #     infect_board(grid)
-        #     infected = True
 
         # Sets the frames per second
         clock.tick(10)
