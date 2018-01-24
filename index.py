@@ -156,12 +156,13 @@ def main():
                 # Set that location to one
                 grid[row][column] = 1
                 color_cell(alive, row, column)
-            elif pressed[pygame.K_c]:
+
+            # Toggle program via space bar
+            elif pressed[pygame.K_SPACE]:
                 run_program = not run_program
 
         if run_program:
             evolve(grid)
-
             # Update screen
             pygame.display.flip()
         else:
