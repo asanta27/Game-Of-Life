@@ -81,7 +81,6 @@ def count_neighbors(grid, x, y):
             if grid[x + nx][y + ny] == 1:
                 alive_neighbors += 1
         except: # need to figure out how to avoid this error in the first place
-            alive_neighbors += 0
             pass
     return alive_neighbors
 
