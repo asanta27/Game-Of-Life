@@ -41,9 +41,25 @@ screen = pygame.display.set_mode(size)
 # Set width, height and margin of cells
 cellx = 5
 celly = 5
-margin = 0
+
+# OPTIONAL: randomly infects board.
+# def infect_board(grid):
+#     for row in range(100):
+#         for column in range(100):
+#
+#             rand = random.randint(1, 10) # 10% chance
+#             if rand > 1:
+#                 rand = 0
+#
+#             grid[row][column] = rand # determine if alive(1) or dead(0)
+#
+#             if grid[row][column] == 1:
+#                 color_cell(alive, row, column)
+#             else:
+#                 color_cell(dead, row, column)
 
 
+# assigns color to a specific cell
 def color_cell(color_state, row, column):
     pygame.draw.rect(screen,
                      color_state,
@@ -52,24 +68,7 @@ def color_cell(color_state, row, column):
                       cellx,
                       celly])
 
-
-def infect_board(grid):
-    # Infects the initial cells
-    for row in range(100):
-        for column in range(100):
-
-            rand = random.randint(1, 10) # 10% chance
-            if rand > 1:
-                rand = 0
-
-            grid[row][column] = rand # determine if alive(1) or dead(0)
-
-            if grid[row][column] == 1:
-                color_cell(alive, row, column)
-            else:
-                color_cell(dead, row, column)
-
-
+# Counts alive neighbors of choosen cell
 def count_neighbors(grid, x, y):
     alive_neighbors = 0
     for i in neighbor_coordinates:
@@ -84,7 +83,7 @@ def count_neighbors(grid, x, y):
             pass
     return alive_neighbors
 
-
+# Begins the evolution process
 def evolve(grid):
     for x in range(100):
         for y in range(100):
