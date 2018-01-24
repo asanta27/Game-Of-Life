@@ -114,21 +114,6 @@ def main():
     # Create 2 dimensional array. Array = a list of lists.
     grid = [[0 for x in range(100)] for y in range(100)]
 
-    # Long version of the above
-    """
-        # Create an empty list
-        grid = []
-        # Loop for each row
-        for row in range(10):
-            # For each row, create a list that will represent an entire row
-            grid.append([])
-            
-            # Loop for each column
-            for column in range(10):
-                # Add a the number zero to the current row
-                grid[row].append(0)
-        """
-
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
