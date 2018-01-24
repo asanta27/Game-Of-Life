@@ -44,7 +44,7 @@ def main():
     size = (505, 505)
     screen = pygame.display.set_mode(size)
 
-    # Set width, height and maring of cells
+    # Set width, height and margin of cells
     cellx = 20
     celly = 20
     margin = 5
