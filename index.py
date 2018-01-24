@@ -15,8 +15,10 @@ Outline:
 
 """
 
-import pygame, \
-       random
+import pygame
+
+# optional because of infect_board function
+import random
 
 # neighbor coordinates
 neighbor_coordinates = {
@@ -68,7 +70,8 @@ def color_cell(color_state, row, column):
                       cellx,
                       celly])
 
-# Counts alive neighbors of choosen cell
+
+# Counts alive neighbors of chosen cell
 def count_neighbors(grid, x, y):
     alive_neighbors = 0
     for i in neighbor_coordinates:
@@ -82,6 +85,7 @@ def count_neighbors(grid, x, y):
             alive_neighbors += 0
             pass
     return alive_neighbors
+
 
 # Begins the evolution process
 def evolve(grid):
