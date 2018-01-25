@@ -12,9 +12,3 @@ Any dead cell with exactly three live neighbours becomes a live cell, as if by r
 Instructions:
 1. Select squares to infect them.
 2. Toggle evolution using the space bar.
-
-Known Issues: 
-
-Line 83 Exception: "IndexError: list index out of range". Error comes from method for determing neighbors because it does not take into account cells that are on the edge of the grid. 
-
-Behavior of evolution needs more debugging.
