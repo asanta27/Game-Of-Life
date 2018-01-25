@@ -15,101 +15,94 @@ Outline:
 import pygame
 import random
 
-# neighbor coordinates
-neighbor_coordinates = {
-    (0,1),   # Top
-    (1, 1),  # Top-Right
-    (1, 0),  # Right
-    (1,-1),  # Bottom-Right
-    (0,-1),  # Bottom
-    (-1,-1), # Bottom-Left
-    (-1,0),  # Left
-    (-1,1)   # Top-Left
-}
+# Set width and height of screen.
+screen_size = 500
+screen = pygame.display.set_mode((screen_size, screen_size))
 
-# Define colors
+cell_size = 10
+
+rows = int(screen_size / cell_size)
+columns = int(screen_size / cell_size)
+
 dead = (0, 0, 0)
 alive = (255, 255, 255)
 
-# Set width and height of screen. size = (width, height)
-size = (500, 500)
-screen = pygame.display.set_mode(size)
 
-# Set width, height and margin of cells
-cellx = 5
-celly = 5
+class Grid:
+    def __init__(self, grid, screen):
+        self.grid = grid
+        self.screen = screen
 
+    # neighbor coordinates
+    neighbor_coordinates = {
+        (-1,-1),( 0,-1),(1,-1),
+        (-1, 0),        (1, 0),
+        (-1, 1),( 0, 1),(1, 1)
+    }
 
-# OPTIONAL: randomly infects board.
-def infect_board(grid):
-    for row in range(100):
-        for column in range(100):
+    # assigns color to a specific cell
+    def color_cell(self, color_state, x, y):
+        pygame.draw.rect(self.screen,
+                         color_state,
+                         [cell_size * y,
+                          cell_size * x,
+                          cell_size,
+                          cell_size])
 
-            rand = random.randint(1, 10) # 10% chance
-            if rand > 1:
-                rand = 0
-
-            grid[row][column] = rand # determine if alive(1) or dead(0)
-
-            if grid[row][column] == 1:
-                color_cell(alive, row, column)
-            else:
-                color_cell(dead, row, column)
-
-
-# assigns color to a specific cell
-def color_cell(color_state, row, column):
-    pygame.draw.rect(screen,
-                     color_state,
-                     [cellx * column,
-                      celly * row,
-                      cellx,
-                      celly])
-
-
-# Counts alive-neighbors of chosen cell
-def count_neighbors(grid, x, y):
-    alive_neighbors = 0
-
-    for i in neighbor_coordinates:
-        # NeighborX and NeighborY coordinates
-        nx = i[0]
-        ny = i[1]
-        try:
-            if grid[x + nx][y + ny] == 1:
-                alive_neighbors = alive_neighbors + 1
-        except:
-            # Handles errors from cells that are on the edge of the board
-            # Error comes from index being out of range (cells don't exist outside display)
-            pass
-    return alive_neighbors
-
-
-# Begins the evolution process
-def evolve(grid):
-    # grid_cache stores the new grid's data
-    grid_cache = [[0 for x in range(100)] for y in range(100)]
-    for x in range(100):
-        for y in range(100):
-            alive_neighbors = count_neighbors(grid, x, y)
-            if grid[x][y] == 1:
-                # alive cells with less than 2 neighbors but more than 3, DIE...
-                if alive_neighbors < 2 or alive_neighbors > 3:
-                    grid_cache[x][y] = 0
-                    color_cell(dead, x, y)
-                else:
-                    # alive cells with 2 or 3 neighbors LIVE ON
-                    grid_cache[x][y] = grid[x][y]
-                    color_cell(alive, x, y)
-            elif grid[x][y] == 0:
-                # empty-cells with 3 neighbors SPAWN
-                if alive_neighbors == 3:
-                    grid_cache[x][y] = 1
-                    color_cell(alive, x, y)
-            else:
+    # Counts alive-neighbors of chosen cell
+    def count_neighbors(self, x, y):
+        alive_neighbors = 0
+        for i in self.neighbor_coordinates:
+            # NeighborX and NeighborY coordinates
+            nx = i[0]
+            ny = i[1]
+            try:
+                if self.grid[x + nx][y + ny] == 1:
+                    alive_neighbors +=1
+            except:
+                # Handles errors from cells that are on the edge of the board
+                # Error comes from index being out of range (cells don't exist outside display)
                 pass
-    # returns the latest grid
-    return grid_cache
+        return alive_neighbors
+
+    # Begins the evolution process
+    def evolve(self):
+        # grid_cache stores the new grid's data
+        grid_cache = [[0 for _ in range(rows)] for _ in range(columns)]
+        for x in range(rows):
+            for y in range(columns):
+                alive_neighbors = self.count_neighbors(x, y)
+                if self.grid[x][y] == 1:
+                    # alive cells with less than 2 neighbors but more than 3, DIE...
+                    if alive_neighbors < 2 or alive_neighbors > 3:
+                        grid_cache[x][y] = 0
+                        self.color_cell(dead, x, y)
+                    else:
+                        # alive cells with 2 or 3 neighbors LIVE ON
+                        grid_cache[x][y] = self.grid[x][y]
+                        self.color_cell(alive, x, y)
+                elif self.grid[x][y] == 0:
+                    # empty-cells with 3 neighbors SPAWN
+                    if alive_neighbors == 3:
+                        grid_cache[x][y] = 1
+                        self.color_cell(alive, x, y)
+        # returns a finished frame of the grid
+        return grid_cache
+
+    # randomly infects board with alive cells
+    def infect(self):
+        for x in range(rows):
+            for y in range(columns):
+                # 10% chance of birth
+                schrodinger_cell = random.randint(1, 10)
+                # determine if alive(1) or dead(0)
+                schrodinger_cell = 0 if schrodinger_cell > 1 else 1
+                self.grid[x][y] = schrodinger_cell
+                # assign colors
+                if self.grid[x][y] == 1:
+                    self.color_cell(alive, x, y)
+                else:
+                    self.color_cell(dead, x, y)
 
 
 def main():
@@ -119,7 +112,7 @@ def main():
     pygame.display.set_caption("Game Of Life")
 
     # Create 2 dimensional array. Array = a list of lists.
-    grid = [[0 for x in range(100)] for y in range(100)]
+    grid = [[0 for _ in range(rows)] for _ in range(columns)]
 
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
@@ -138,34 +131,34 @@ def main():
 
     # ---- Main event loop ----
     while not done:
-
         pressed = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+            # Toggle program via space bar
+            elif pressed[pygame.K_SPACE]:
+                run_program = not run_program
+            # User clicks to infect squares
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # User clicks the mouse. Get the position
                 pos = pygame.mouse.get_pos()
                 # Change the x/y screen coordinates to grid coordinates
-                column = pos[0] // cellx
-                row = pos[1] // celly
+                y = pos[0] // cell_size
+                x = pos[1] // cell_size
                 # Set that location to one
-                grid[row][column] = 1
-                color_cell(alive, row, column)
-
-            # Toggle program via space bar
-            elif pressed[pygame.K_SPACE]:
-                run_program = not run_program
+                grid[x][y] = 1
+                Grid(grid, screen).color_cell(alive, x, y)
 
         # Initial infection function. This is optional
         if not infected:
-            infect_board(grid)
+            Grid(grid, screen).infect()
             infected = True
 
         if run_program:
-            grid = evolve(grid)
+            grid = Grid(grid, screen).evolve()
             # Update screen
             pygame.display.flip()
+
         else:
             pygame.display.flip()
 
