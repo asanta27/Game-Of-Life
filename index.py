@@ -77,11 +77,10 @@ def count_neighbors(grid, x, y):
         ny = i[1]
         try:
             if grid[x + nx][y + ny] == 1:
-               # print("-----------")
-                # print("Coordinate: " + str(x), str(y) + " Neighbor: " + str(x + nx),str(y + ny))
                 alive_neighbors = alive_neighbors + 1
-                # print(alive_neighbors)
-        except: # need to figure out how to avoid this error in the first place
+        except:
+            # Handles errors from cells that are on the edge of the board
+            # Error comes from index being out of range (cells don't exist outside display)
             pass
     return alive_neighbors
 
