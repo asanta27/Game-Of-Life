@@ -41,13 +41,14 @@ class Cells:
             x = i[0]
             y = i[1]
             self.grid[x][y] =1
-            self.color_cell(alive, x, y)
+            self.color_cell(x, y)
         return self.grid
 
     # assigns color to a specific cell
-    def color_cell(self, color_state, x, y):
+    def color_cell(self, x, y):
+        color = alive if self.grid[x][y] == 1 else dead
         pygame.draw.rect(screen,
-                         color_state,
+                         color,
                          [(margin + cell_size) * x + margin,
                           (margin + cell_size) * y + margin,
                           cell_size, cell_size])
@@ -75,26 +76,27 @@ class Cells:
 
     # Begins the evolution process
     def evolve(self):
-        # grid_cache stores the new grid's data
+        # grid_cache stores the next frame's data.
         grid_cache = [[0 for _ in range(rows)] for _ in range(columns)]
         for x in range(rows):
             for y in range(columns):
+                # Update cell color to latest frame
+                self.color_cell(x, y)
+                # Count neighbors of this cell
                 alive_neighbors = self.count_neighbors(x, y)
                 if self.grid[x][y] == 1:
                     # alive cells with less than 2 neighbors but more than 3, DIE...
                     if alive_neighbors < 2 or alive_neighbors > 3:
+                        # Contains the data for the next frame.
                         grid_cache[x][y] = 0
-                        self.color_cell(dead, x, y)
                     else:
                         # alive cells with 2 or 3 neighbors LIVE ON
                         grid_cache[x][y] = self.grid[x][y]
-                        self.color_cell(alive, x, y)
                 elif self.grid[x][y] == 0:
                     # empty-cells with 3 neighbors SPAWN
                     if alive_neighbors == 3:
                         grid_cache[x][y] = 1
-                        self.color_cell(alive, x, y)
-        # returns a finished frame of the grid
+        # returns a next frame of the grid
         return grid_cache
 
     # randomly seeds alive cells
@@ -107,12 +109,8 @@ class Cells:
                 schrodinger_cell = 0 if schrodinger_cell > 1 else 1
                 # Give birth to schrodinger_cells
                 self.grid[x][y] = schrodinger_cell
-                # assign colors
-                if self.grid[x][y] == 1:
-                    self.color_cell(alive, x, y)
-                else:
-                    self.color_cell(dead, x, y)
-
+                # Update cell color
+                self.color_cell(x, y)
 
 # Screen is a square
 screen_size = 500
@@ -124,6 +122,7 @@ margin = 1
 rows = int(screen_size / (cell_size + margin))
 columns = int(screen_size / (cell_size + margin))
 
+# Cell RGB colors
 dead = (0, 0, 0)
 alive = (255, 255, 255)
 
@@ -178,16 +177,13 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # User clicks the mouse. Gets the position
                 pos = pygame.mouse.get_pos()
-                # Change the y/x1 screen coordinates to grid coordinates
+                # Change the x/y screen coordinates to grid coordinates
                 x = pos[0] // (cell_size + margin)
                 y = pos[1] // (cell_size + margin)
                 # Toggle that cell
-                if grid[x][y] == 1:
-                    grid[x][y] = 0
-                    Cells(grid).color_cell(dead, x, y)
-                else:
-                    grid[x][y] = 1
-                    Cells(grid).color_cell(alive, x, y)
+                grid[x][y] = 0 if grid[x][y] == 1 else 1
+                # Update cell color
+                Cells(grid).color_cell(x, y)
 
         if run_program:
             grid = Cells(grid).evolve()
