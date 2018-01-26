@@ -10,5 +10,7 @@ Any live cell with more than three live neighbours dies, as if by overpopulation
 Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
 Instructions:
-1. Select squares to infect them.
+1. Select squares to spawn/kill them.
 2. Toggle evolution using the space bar.
+
+BONUS: Hit "G" to toggle the glider gun!
