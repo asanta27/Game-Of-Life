@@ -31,10 +31,9 @@ class Cells:
     def color_cell(self, color_state, x, y):
         pygame.draw.rect(screen,
                          color_state,
-                         [cell_size * y,
-                          cell_size * x,
-                          cell_size,
-                          cell_size])
+                         [(margin + cell_size) * y + margin,
+                          (margin + cell_size) * x + margin,
+                          cell_size, cell_size])
 
     # Counts alive-neighbors of chosen cell
     def count_neighbors(self, x, y):
@@ -92,14 +91,15 @@ class Cells:
                 else:
                     self.color_cell(dead, x, y)
 
-
 # Screen is a square
 screen_size = 500
-screen = pygame.display.set_mode((screen_size, screen_size))
-cell_size = 10
+screen = pygame.display.set_mode((screen_size + 1, screen_size + 1))
 
-rows = int(screen_size / cell_size)
-columns = int(screen_size / cell_size)
+cell_size = 9
+margin = 1
+
+rows = int(screen_size / (cell_size + margin))
+columns = int(screen_size / (cell_size + margin))
 
 dead = (0, 0, 0)
 alive = (255, 255, 255)
@@ -124,7 +124,7 @@ def main():
     # infect board at beginning of game
     infected = False
     # toggle evolution
-    run_program = True
+    run_program = False
 
     # ---- Main event loop ----
     while not done:
@@ -140,11 +140,15 @@ def main():
                 # User clicks the mouse. Get the position
                 pos = pygame.mouse.get_pos()
                 # Change the x/y screen coordinates to grid coordinates
-                y = pos[0] // cell_size
-                x = pos[1] // cell_size
+                y = pos[0] // (cell_size + margin)
+                x = pos[1] // (cell_size + margin)
                 # Set that location to one
-                grid[x][y] = 1
-                Cells(grid).color_cell(alive, x, y)
+                if grid[x][y] == 1:
+                    grid[x][y] = 0
+                    Cells(grid).color_cell(dead, x, y)
+                else:
+                    grid[x][y] = 1
+                    Cells(grid).color_cell(alive, x, y)
 
         # Initial infection function. This is optional
         if not infected:
