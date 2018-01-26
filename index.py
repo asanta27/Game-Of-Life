@@ -20,19 +20,36 @@ class Cells:
     def __init__(self, grid):
         self.grid = grid
 
-    # neighbor coordinates
     neighbor_coordinates = {
         (-1,-1),( 0,-1),(1,-1),
         (-1, 0),        (1, 0),
         (-1, 1),( 0, 1),(1, 1)
     }
 
+    glider_gun = {
+        (1, 7), (1, 8), (2, 7), (2, 8), (11, 7), (11, 8), (11, 9),
+        (12, 10), (13, 11), (14, 11), (12, 6), (13, 5), (14, 5),
+        (16, 6), (17, 7), (17, 8), (15, 8), (18, 8), (17, 9),
+        (16, 10), (21, 7), (22, 7), (21, 6), (22, 6), (21, 5),
+        (23, 4), (23, 8), (25, 4), (25, 3), (25, 8), (25, 9),
+        (35, 6), (36, 6),(35, 5), (36, 5), (22, 5)
+    }
+
+    # Hit "G" for glider gun!
+    def glider(self):
+        for i in self.glider_gun:
+            x = i[0]
+            y = i[1]
+            self.grid[x][y] =1
+            self.color_cell(alive, x, y)
+        return self.grid
+
     # assigns color to a specific cell
     def color_cell(self, color_state, x, y):
         pygame.draw.rect(screen,
                          color_state,
-                         [(margin + cell_size) * y + margin,
-                          (margin + cell_size) * x + margin,
+                         [(margin + cell_size) * x + margin,
+                          (margin + cell_size) * y + margin,
                           cell_size, cell_size])
 
     # Counts alive-neighbors of chosen cell
@@ -43,8 +60,13 @@ class Cells:
             nx = i[0]
             ny = i[1]
             try:
-                if self.grid[x + nx][y + ny] == 1:
-                    alive_neighbors +=1
+                # prevents counting "neighbors" on other side of board
+                # when index is -1
+                if (x+nx) < 0 or (y+ny) < 0:
+                    pass
+                # count neighbor if alive
+                elif self.grid[x + nx][y + ny] == 1:
+                    alive_neighbors += 1
             except:
                 # Handles errors from cells that are on the edge of the board
                 # Error comes from index being out of range (cells don't exist outside display)
@@ -75,8 +97,8 @@ class Cells:
         # returns a finished frame of the grid
         return grid_cache
 
-    # randomly infects board with alive cells
-    def infect(self):
+    # randomly seeds alive cells
+    def seed(self):
         for x in range(rows):
             for y in range(columns):
                 # 10% chance of birth
@@ -91,9 +113,10 @@ class Cells:
                 else:
                     self.color_cell(dead, x, y)
 
+
 # Screen is a square
 screen_size = 500
-screen = pygame.display.set_mode((screen_size + 1, screen_size + 1))
+screen = pygame.display.set_mode((screen_size, screen_size))
 
 cell_size = 9
 margin = 1
@@ -119,12 +142,17 @@ def main():
     # Create 2 dimensional array. Array = a list of lists.
     grid = [[0 for _ in range(rows)] for _ in range(columns)]
 
+    # infects board at beginning of game
+    Cells(grid).seed()
+
+    # toggle evolution
+    run_program = True
+
+    # toggles the glider gun
+    glider_toggle = True
+
     # Loop until the user clicks the close button
     done = False
-    # infect board at beginning of game
-    infected = False
-    # toggle evolution
-    run_program = False
 
     # ---- Main event loop ----
     while not done:
@@ -135,25 +163,31 @@ def main():
             # Toggle program via space bar
             elif pressed[pygame.K_SPACE]:
                 run_program = not run_program
-            # User clicks to infect squares
+            # Hit "G" for glider_toggle!
+            elif pressed[pygame.K_g]:
+                    # reset cells
+                    screen.fill(dead)
+                    grid = [[0 for _ in range(rows)] for _ in range(columns)]
+                    if glider_toggle:
+                        Cells(grid).glider()
+                        glider_toggle = False
+                    else:
+                        Cells(grid).seed()
+                        glider_toggle = True
+            # User clicks to create/kill squares
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # User clicks the mouse. Get the position
+                # User clicks the mouse. Gets the position
                 pos = pygame.mouse.get_pos()
-                # Change the x/y screen coordinates to grid coordinates
-                y = pos[0] // (cell_size + margin)
-                x = pos[1] // (cell_size + margin)
-                # Set that location to one
+                # Change the y/x1 screen coordinates to grid coordinates
+                x = pos[0] // (cell_size + margin)
+                y = pos[1] // (cell_size + margin)
+                # Toggle that cell
                 if grid[x][y] == 1:
                     grid[x][y] = 0
                     Cells(grid).color_cell(dead, x, y)
                 else:
                     grid[x][y] = 1
                     Cells(grid).color_cell(alive, x, y)
-
-        # Initial infection function. This is optional
-        if not infected:
-            Cells(grid).infect()
-            infected = True
 
         if run_program:
             grid = Cells(grid).evolve()
