@@ -62,7 +62,7 @@ class Cells:
             ny = i[1]
             try:
                 # prevents counting "neighbors" on other side of board
-                # when index is -1
+                # when index is less than 0
                 if (x+nx) < 0 or (y+ny) < 0:
                     pass
                 # count neighbor if alive
@@ -96,7 +96,7 @@ class Cells:
                     # empty-cells with 3 neighbors SPAWN
                     if alive_neighbors == 3:
                         grid_cache[x][y] = 1
-        # returns a next frame of the grid
+        # returns the next frame of the grid
         return grid_cache
 
     # randomly seeds alive cells
@@ -173,7 +173,7 @@ def main():
                     else:
                         Cells(grid).seed()
                         glider_toggle = True
-            # User clicks to create/kill squares
+            # User clicks to spawn/kill cells
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # User clicks the mouse. Gets the position
                 pos = pygame.mouse.get_pos()
